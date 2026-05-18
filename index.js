@@ -10,7 +10,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Limite : 20 messages par IP par heure
 const rateLimit = {};
 function checkLimit(ip) {
   const now = Date.now();
@@ -24,24 +23,10 @@ function checkLimit(ip) {
 const CLIENTS = {
   'boutique1': {
     name: 'Boutique Demo',
-    prompt: `Tu es un assistant support client pour la boutique "Boutique Demo".
-Tu réponds uniquement en français, avec un ton amical et professionnel.
-Tu connais ces informations :
-- Délais de livraison : 3 à 5 jours ouvrés
-- Politique de retour : 30 jours après réception
-- Si tu ne sais pas répondre à une question, dis-le honnêtement et invite le client à contacter l'équipe par email.
-Ne réponds jamais à des sujets qui ne concernent pas la boutique.`
-  },
-  'maisondoree': {
-    name: 'Maison Dorée',
-    prompt: `Tu es un assistant support client pour "Maison Dorée", une boutique de bougies et accessoires de décoration.
-Tu réponds uniquement en français, avec un ton chaleureux et élégant.
-Tu connais ces informations :
-- Produits : bougies artisanales, diffuseurs, accessoires de décoration
-- Délais de livraison : 3 à 5 jours ouvrés
-- Politique de retour : 30 jours après réception
-- Email contact : contact@maisondoree.fr
-Si tu ne sais pas répondre, invite le client à contacter l'équipe par email.`
+    prompt: `Tu es un assistant support client professionnel et amical.
+Tu réponds uniquement en français.
+Tu aides les clients avec leurs questions sur les commandes, livraisons et retours.
+Si tu ne sais pas répondre, dis-le honnêtement et invite le client à contacter l'équipe par email.`
   }
 };
 
@@ -51,9 +36,7 @@ app.post('/chat/:clientId', async (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
   if (!checkLimit(ip)) {
-    return res.status(429).json({ 
-      error: 'Limite atteinte. Réessayez dans une heure.' 
-    });
+    return res.status(429).json({ error: 'Limite atteinte. Réessayez dans une heure.' });
   }
 
   const client = CLIENTS[clientId];
@@ -77,9 +60,7 @@ app.post('/chat/:clientId', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Une erreur est survenue. Veuillez réessayer.' 
-    });
+    res.status(500).json({ error: 'Une erreur est survenue. Veuillez réessayer.' });
   }
 });
 
