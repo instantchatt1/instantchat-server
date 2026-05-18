@@ -10,8 +10,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/chat', async (req, res) => {
-  const { messages, system } = req.body;
+const CLIENTS = {
+  'boutique1': {
+    name: 'Boutique Demo',
+    prompt: 'Tu es un assistant support client professionnel et amical. Tu réponds en français. Tu aides les clients avec leurs questions sur les commandes, livraisons et retours.'
+  }
+};
+
+app.post('/chat/:clientId', async (req, res) => {
+  const { clientId } = req.params;
+  const { messages } = req.body;
+  const client = CLIENTS[clientId];
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -23,7 +34,7 @@ app.post('/chat', async (req, res) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
-        system: system,
+        system: client.prompt,
         messages: messages
       })
     });
