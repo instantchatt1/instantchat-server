@@ -132,8 +132,9 @@
         icAddMsg('bot', reply);
       }
     } catch(e) {
-      document.getElementById('ic-typing').remove();
-      icAddMsg('bot', '❌ Erreur de connexion. Réessayez.');
+      var t = document.getElementById('ic-typing');
+      if (t) t.remove();
+      icAddMsg('bot', '😔 Désolé, une erreur est survenue. Veuillez réessayer ou contacter notre équipe par email.');
     }
     loading = false;
     document.getElementById('ic-send').disabled = false;
