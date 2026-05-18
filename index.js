@@ -13,7 +13,24 @@ app.use((req, res, next) => {
 const CLIENTS = {
   'boutique1': {
     name: 'Boutique Demo',
-    prompt: 'Tu es un assistant support client professionnel et amical. Tu réponds en français. Tu aides les clients avec leurs questions sur les commandes, livraisons et retours.'
+    prompt: `Tu es un assistant support client pour la boutique "Boutique Demo".
+Tu réponds uniquement en français, avec un ton amical et professionnel.
+Tu connais ces informations :
+- Délais de livraison : 3 à 5 jours ouvrés
+- Politique de retour : 30 jours après réception
+- Si tu ne sais pas répondre à une question, dis-le honnêtement et invite le client à contacter l'équipe par email.
+Ne réponds jamais à des sujets qui ne concernent pas la boutique.`
+  },
+  'maisondoree': {
+    name: 'Maison Dorée',
+    prompt: `Tu es un assistant support client pour "Maison Dorée", une boutique de bougies et accessoires de décoration.
+Tu réponds uniquement en français, avec un ton chaleureux et élégant.
+Tu connais ces informations :
+- Produits : bougies artisanales, diffuseurs, accessoires de décoration
+- Délais de livraison : 3 à 5 jours ouvrés
+- Politique de retour : 30 jours après réception
+- Email contact : contact@maisondoree.fr
+Si tu ne sais pas répondre, invite le client à contacter l'équipe par email.`
   }
 };
 
@@ -21,7 +38,7 @@ app.post('/chat/:clientId', async (req, res) => {
   const { clientId } = req.params;
   const { messages } = req.body;
   const client = CLIENTS[clientId];
-  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (!client) return res.status(404).json({ error: 'Client introuvable' });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -45,7 +62,7 @@ app.post('/chat/:clientId', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('InstantChat server running!'));
+app.get('/', (req, res) => res.send('InstantChat server running !'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
