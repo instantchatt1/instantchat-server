@@ -126,7 +126,7 @@
       });
       var data = await res.json();
       document.getElementById('ic-typing').remove();
-      if (data.content && data.content[0]) {
+      if (data && data.content && data.content[0]) {
         var reply = data.content[0].text;
         history.push({ role: 'assistant', content: reply });
         icAddMsg('bot', reply);
