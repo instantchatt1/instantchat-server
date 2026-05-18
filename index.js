@@ -10,6 +10,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Limite : 20 messages par IP par heure
+const rateLimit = {};
+function checkLimit(ip) {
+  const now = Date.now();
+  if (!rateLimit[ip]) rateLimit[ip] = [];
+  rateLimit[ip] = rateLimit[ip].filter(t => now - t < 3600000);
+  if (rateLimit[ip].length >= 20) return false;
+  rateLimit[ip].push(now);
+  return true;
+}
+
 const CLIENTS = {
   'boutique1': {
     name: 'Boutique Demo',
@@ -37,6 +48,14 @@ Si tu ne sais pas répondre, invite le client à contacter l'équipe par email.`
 app.post('/chat/:clientId', async (req, res) => {
   const { clientId } = req.params;
   const { messages } = req.body;
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+  if (!checkLimit(ip)) {
+    return res.status(429).json({ 
+      error: 'Limite atteinte. Réessayez dans une heure.' 
+    });
+  }
+
   const client = CLIENTS[clientId];
   if (!client) return res.status(404).json({ error: 'Client introuvable' });
 
@@ -58,7 +77,9 @@ app.post('/chat/:clientId', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ 
+      error: 'Une erreur est survenue. Veuillez réessayer.' 
+    });
   }
 });
 
